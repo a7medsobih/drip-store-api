@@ -15,7 +15,8 @@ const refundSchema = new mongoose.Schema(
     reason: {
       type: String,
       required: true,
-      minlength: 20,
+      minlength: 3,
+      maxlength: 500,
       trim: true
     },
     status: {

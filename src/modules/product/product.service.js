@@ -259,11 +259,18 @@ const productService = {
     }
 
     const bestSellers = await Order.aggregate([
-      { $unwind: "$products" },
+      {
+        $project: {
+          orderItems: {
+            $ifNull: ["$items", "$products"]
+          }
+        }
+      },
+      { $unwind: "$orderItems" },
       {
         $group: {
-          _id: "$products.productId",
-          totalSold: { $sum: "$products.quantity" }
+          _id: "$orderItems.productId",
+          totalSold: { $sum: "$orderItems.quantity" }
         }
       },
       { $sort: { totalSold: -1 } },

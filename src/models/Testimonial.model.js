@@ -4,24 +4,21 @@ const testimonialSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User"
+      ref: "User",
+      required: true
     },
-    comment: {
+    message: {
       type: String,
       required: true,
-      minlength: 10,
+      minlength: 3,
       maxlength: 500,
       trim: true
     },
-    stars: {
+    rating: {
       type: Number,
       required: true,
       min: 1,
       max: 5
-    },
-    isApproved: {
-      type: Boolean,
-      default: false
     },
     status: {
       type: String,
