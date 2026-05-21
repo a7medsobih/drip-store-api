@@ -3,6 +3,16 @@ import Subcategory from "../../models/Subcategory.model.js";
 import AppError from "../../utils/AppError.js";
 
 const getNormalizedTitle = (title) => title.trim();
+const mapCategoryRelation = (category) => {
+  if (!category || typeof category !== "object" || !("_id" in category)) {
+    return category;
+  }
+
+  return {
+    _id: category._id,
+    name: category.name ?? category.title
+  };
+};
 
 const getActiveCategoryById = async (categoryId) => {
   const category = await Category.findOne({
@@ -22,13 +32,19 @@ const subcategoryService = {
   async getPublicSubcategoriesByCategoryId(categoryId) {
     await getActiveCategoryById(categoryId);
 
-    return Subcategory.find({
+    const subcategories = await Subcategory.find({
       categoryId,
       isActive: true,
       isDeleted: false
     })
+      .populate("categoryId", "title")
       .sort({ createdAt: -1 })
       .lean();
+
+    return subcategories.map((subcategory) => ({
+      ...subcategory,
+      categoryId: mapCategoryRelation(subcategory.categoryId)
+    }));
   },
 
   async createSubcategory(payload) {

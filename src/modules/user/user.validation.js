@@ -1,6 +1,48 @@
+import mongoose from "mongoose";
+
 const getBodyError = (message) => ({
   error: message
 });
+
+const validatePositiveIntegerQuery = (value, fieldName) => {
+  if (value === undefined) {
+    return null;
+  }
+
+  const parsedValue = Number(value);
+
+  if (!Number.isInteger(parsedValue) || parsedValue < 1) {
+    return getBodyError(`${fieldName} must be a positive integer`);
+  }
+
+  return null;
+};
+
+const validateObjectId = (value, fieldName) => {
+  if (!mongoose.Types.ObjectId.isValid(value)) {
+    return getBodyError(`Invalid ${fieldName}`);
+  }
+
+  return null;
+};
+
+const validateGetAllUsers = (req) => {
+  const pageError = validatePositiveIntegerQuery(req.query.page, "page");
+  if (pageError) {
+    return pageError;
+  }
+
+  const limitError = validatePositiveIntegerQuery(req.query.limit, "limit");
+  if (limitError) {
+    return limitError;
+  }
+
+  if (req.query.search !== undefined && typeof req.query.search !== "string") {
+    return getBodyError("search must be a string");
+  }
+
+  return null;
+};
 
 const validateUpdateProfile = (req) => {
   const { body } = req;
@@ -57,7 +99,9 @@ const validateUpdateProfile = (req) => {
 };
 
 const userValidation = {
-  updateProfile: validateUpdateProfile
+  updateProfile: validateUpdateProfile,
+  getAllUsers: validateGetAllUsers,
+  userId: (req) => validateObjectId(req.params.id, "user id")
 };
 
 export default userValidation;

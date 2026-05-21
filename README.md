@@ -83,12 +83,6 @@ npm install
 npm start
 ```
 
-## 🧪 Scripts
-
-```bash
-npm start
-```
-
 ## 👨‍💻 Author
 
 **Ahmed Sobih**

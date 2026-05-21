@@ -61,6 +61,7 @@ const testimonialService = {
         const testimonials = await Testimonial.find({
             status: TESTIMONIAL_STATUS.APPROVED
         })
+            .populate("userId", "name")
             .sort({ createdAt: -1 })
             .limit(limit)
             .lean();

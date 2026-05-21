@@ -24,6 +24,7 @@ import {
   publicSubcategoryRoutes
 } from "./modules/subcategory/subcategory.routes.js";
 import testimonialRoutes from "./modules/testimonial/testimonial.routes.js";
+import adminUserRoutes from "./modules/user/user.admin.routes.js";
 import userRoutes from "./modules/user/user.routes.js";
 import { fileURLToPath } from "url";
 
@@ -43,6 +44,7 @@ app.use("/api/files", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/admin/users", adminUserRoutes);
 app.use("/api/v1/addresses", addressRoutes);
 app.use("/api/v1/categories", publicCategoryRoutes);
 app.use("/api/v1/subcategories", publicSubcategoryRoutes);

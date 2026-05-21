@@ -9,6 +9,16 @@ import { deleteCache, getCache, setCache } from "../../utils/cache.utils.js";
 const BEST_SELLERS_CACHE_KEY = "products:best-sellers";
 const NEW_ARRIVALS_CACHE_KEY = "products:new-arrivals";
 const CACHE_TTL_SECONDS = 5 * 60;
+const PRODUCT_RELATION_POPULATE_OPTIONS = [
+  {
+    path: "categoryId",
+    select: "title"
+  },
+  {
+    path: "subCategoryId",
+    select: "title"
+  }
+];
 
 const clearProductCaches = () => {
   deleteCache(BEST_SELLERS_CACHE_KEY);
@@ -162,6 +172,32 @@ const parseProductPayload = (payload, file) => {
   return parsedPayload;
 };
 
+const mapNamedRelation = (relation) => {
+  if (!relation || typeof relation !== "object" || !("_id" in relation)) {
+    return relation;
+  }
+
+  return {
+    _id: relation._id,
+    name: relation.name ?? relation.title
+  };
+};
+
+const formatProductRelations = (product) => ({
+  ...product,
+  categoryId: mapNamedRelation(product.categoryId),
+  subCategoryId: mapNamedRelation(product.subCategoryId)
+});
+
+const populateProductRelations = async (products) => {
+  const populatedProducts = await Product.populate(
+    products,
+    PRODUCT_RELATION_POPULATE_OPTIONS
+  );
+
+  return populatedProducts.map(formatProductRelations);
+};
+
 const productService = {
   async createProduct(payload, file) {
     const parsedPayload = parseProductPayload(payload, file);
@@ -240,9 +276,10 @@ const productService = {
       Product.find(query).sort(sort).skip(skip).limit(limit).lean(),
       Product.countDocuments(query)
     ]);
+    const populatedProducts = await populateProductRelations(products);
 
     return {
-      items: products,
+      items: populatedProducts,
       pagination: {
         page,
         limit,
@@ -308,10 +345,11 @@ const productService = {
         }
       }
     ]);
+    const populatedBestSellers = await populateProductRelations(bestSellers);
 
-    setCache(BEST_SELLERS_CACHE_KEY, bestSellers, CACHE_TTL_SECONDS);
+    setCache(BEST_SELLERS_CACHE_KEY, populatedBestSellers, CACHE_TTL_SECONDS);
 
-    return bestSellers;
+    return populatedBestSellers;
   },
 
   async getNewArrivals() {
@@ -327,10 +365,15 @@ const productService = {
       .sort({ createdAt: -1 })
       .limit(10)
       .lean();
+    const populatedNewArrivals = await populateProductRelations(newArrivals);
 
-    setCache(NEW_ARRIVALS_CACHE_KEY, newArrivals, CACHE_TTL_SECONDS);
+    setCache(
+      NEW_ARRIVALS_CACHE_KEY,
+      populatedNewArrivals,
+      CACHE_TTL_SECONDS
+    );
 
-    return newArrivals;
+    return populatedNewArrivals;
   }
 };
 
