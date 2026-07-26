@@ -1,3 +1,4 @@
+// src/config/env.js
 const requiredEnvVars = ["PORT", "MONGO_URI"];
 
 for (const envVar of requiredEnvVars) {

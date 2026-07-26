@@ -1,3 +1,4 @@
+// src/config/cors.js
 import cors from "cors";
 
 const allowOrigins = (process.env.ALLOW_ORIGINS || "")

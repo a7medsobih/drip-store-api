@@ -1,3 +1,4 @@
+// src/config/db.js
 import mongoose from "mongoose";
 
 import { MESSAGES } from "../constants/messages.js";
