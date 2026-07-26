@@ -1,3 +1,4 @@
+// server.js
 import "dotenv/config";
 
 import app from "./src/app.js";
@@ -9,9 +10,13 @@ import logger from "./src/config/logger.js";
 const startServer = async () => {
   await connectDB();
 
+  // if (process.env.NODE_ENV !== "production") {
   app.listen(env.PORT, () => {
     logger.info(`${MESSAGES.SERVER_RUNNING} on port ${env.PORT}`);
   });
+  // }
 };
 
 startServer();
+
+export default app;
