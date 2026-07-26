@@ -10,11 +10,11 @@ import logger from "./src/config/logger.js";
 const startServer = async () => {
   await connectDB();
 
-  // if (process.env.NODE_ENV !== "production") {
-  app.listen(env.PORT, () => {
-    logger.info(`${MESSAGES.SERVER_RUNNING} on port ${env.PORT}`);
-  });
-  // }
+  if (process.env.NODE_ENV !== "production") {
+    app.listen(env.PORT, () => {
+      logger.info(`${MESSAGES.SERVER_RUNNING} on port ${env.PORT}`);
+    });
+  }
 };
 
 startServer();
