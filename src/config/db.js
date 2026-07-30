@@ -1,4 +1,4 @@
-// src/config/db.js
+﻿// src/config/db.js
 import mongoose from "mongoose";
 
 import { MESSAGES } from "../constants/messages.js";
@@ -13,10 +13,23 @@ const connectDB = async () => {
   }
 
   if (!connectionPromise) {
-    connectionPromise = mongoose.connect(env.MONGO_URI).then(() => {
-      logger.info(MESSAGES.DATABASE_CONNECTED);
-      return mongoose.connection;
-    });
+    connectionPromise = mongoose
+      .connect(env.MONGO_URI)
+      .then(() => {
+        logger.info(MESSAGES.DATABASE_CONNECTED);
+        return mongoose.connection;
+      })
+      .catch((error) => {
+        logger.error(`Database connection failed: ${error.message}`);
+
+        if (error?.name === "MongooseServerSelectionError") {
+          logger.error(
+            "MongoDB Atlas did not accept the connection. Check Atlas Network Access, Vercel outbound access, and the MONGO_URI credentials."
+          );
+        }
+
+        throw error;
+      });
 
     globalThis.__mongoConnectionPromise = connectionPromise;
   }
