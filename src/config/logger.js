@@ -1,23 +1,18 @@
 // src/config/logger.js
 import fs from "fs";
-import os from "os";
 import path from "path";
 import { fileURLToPath } from "url";
 import winston from "winston";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const defaultLogsDirectory = path.resolve(__dirname, "../../logs");
-const logsDirectory =
-  process.env.LOGS_DIR ||
-  (process.env.NODE_ENV === "production"
-    ? path.resolve(os.tmpdir(), "drip-store-api-logs")
-    : defaultLogsDirectory);
+const logsDirectory = process.env.LOGS_DIR || path.resolve(__dirname, "../../logs");
+const shouldWriteFiles = !process.env.VERCEL;
 
 const transports = [new winston.transports.Console()];
 
 try {
-  if (process.env.NODE_ENV !== "production" || process.env.LOGS_DIR) {
+  if (shouldWriteFiles) {
     if (!fs.existsSync(logsDirectory)) {
       fs.mkdirSync(logsDirectory, { recursive: true });
     }

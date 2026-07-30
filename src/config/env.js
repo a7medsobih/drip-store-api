@@ -1,5 +1,5 @@
 // src/config/env.js
-const requiredEnvVars = ["PORT", "MONGO_URI"];
+const requiredEnvVars = ["MONGO_URI"];
 
 for (const envVar of requiredEnvVars) {
   if (!process.env[envVar]) {
@@ -8,7 +8,7 @@ for (const envVar of requiredEnvVars) {
 }
 
 const env = {
-  PORT: Number(process.env.PORT),
+  PORT: Number(process.env.PORT ?? 3000),
   MONGO_URI: process.env.MONGO_URI
 };
 

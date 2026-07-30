@@ -1,9 +1,9 @@
 // src/app.js
 import cors from "cors";
 import express from "express";
-import path from "path";
 
 import corsMiddleware from "./config/cors.js";
+import { uploadsDirectory } from "./config/storage.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import addressRoutes from "./modules/address/address.routes.js";
 import authRoutes from "./modules/auth/auth.routes.js";
@@ -26,21 +26,18 @@ import {
 import testimonialRoutes from "./modules/testimonial/testimonial.routes.js";
 import adminUserRoutes from "./modules/user/user.admin.routes.js";
 import userRoutes from "./modules/user/user.routes.js";
-import { fileURLToPath } from "url";
 
 const app = express();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 app.use(corsMiddleware);
 app.use(express.json());
-app.use("/uploads", express.static(path.resolve("uploads")));
+app.use("/uploads", express.static(uploadsDirectory));
 
 app.get("/", (req, res) => {
   res.status(200).json({ message: "API is running" });
 });
 
-app.use("/api/files", express.static(path.join(__dirname, "uploads")));
+app.use("/api/files", express.static(uploadsDirectory));
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/user", userRoutes);

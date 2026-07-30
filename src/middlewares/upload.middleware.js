@@ -3,17 +3,16 @@ import path from "path";
 
 import multer from "multer";
 
+import { productUploadsDirectory } from "../config/storage.js";
 import AppError from "../utils/AppError.js";
 
-const uploadsDirectory = path.resolve("uploads", "products");
-
-if (!fs.existsSync(uploadsDirectory)) {
-  fs.mkdirSync(uploadsDirectory, { recursive: true });
+if (!fs.existsSync(productUploadsDirectory)) {
+  fs.mkdirSync(productUploadsDirectory, { recursive: true });
 }
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, uploadsDirectory);
+    cb(null, productUploadsDirectory);
   },
   filename: (req, file, cb) => {
     const fileExtension = path.extname(file.originalname);
