@@ -8,9 +8,18 @@ import env from "./src/config/env.js";
 import logger from "./src/config/logger.js";
 
 const isVercel = Boolean(process.env.VERCEL);
+let bootstrapPromise = null;
 
 const startServer = async () => {
-  await connectDB();
+  if (!bootstrapPromise) {
+    bootstrapPromise = (async () => {
+      logger.info(MESSAGES.ENVIRONMENT_LOADED);
+      logger.info(MESSAGES.SERVER_STARTED);
+      await connectDB();
+    })();
+  }
+
+  await bootstrapPromise;
 
   if (!isVercel) {
     app.listen(env.PORT, () => {
@@ -19,16 +28,40 @@ const startServer = async () => {
   }
 };
 
-try {
-  await startServer();
-} catch (error) {
-  logger.error(`Server startup failed: ${error.message}`);
+process.on("uncaughtException", (error) => {
+  logger.error(`uncaughtException: ${error.message}`);
+  logger.error(error.stack || "No stack trace available");
 
   if (!isVercel) {
     process.exit(1);
   }
+});
 
-  throw error;
+process.on("unhandledRejection", (reason) => {
+  const errorMessage =
+    reason instanceof Error ? reason.message : JSON.stringify(reason);
+  const errorStack =
+    reason instanceof Error ? reason.stack : "No stack trace available";
+
+  logger.error(`unhandledRejection: ${errorMessage}`);
+  logger.error(errorStack || "No stack trace available");
+
+  if (!isVercel) {
+    process.exit(1);
+  }
+});
+
+if (!isVercel) {
+  startServer().catch((error) => {
+    logger.error(`Server startup failed: ${error.message}`);
+    logger.error(error.stack || "No stack trace available");
+    process.exit(1);
+  });
+} else {
+  startServer().catch((error) => {
+    logger.error(`Vercel bootstrap failed: ${error.message}`);
+    logger.error(error.stack || "No stack trace available");
+  });
 }
 
 export default app;

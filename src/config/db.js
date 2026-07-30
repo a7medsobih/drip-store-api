@@ -9,10 +9,12 @@ let connectionPromise = globalThis.__mongoConnectionPromise;
 
 const connectDB = async () => {
   if (mongoose.connection.readyState === 1) {
+    logger.info("MongoDB connection already established");
     return mongoose.connection;
   }
 
   if (!connectionPromise) {
+    logger.info(MESSAGES.CONNECTING_TO_DATABASE);
     connectionPromise = mongoose
       .connect(env.MONGO_URI)
       .then(() => {

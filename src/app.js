@@ -1,9 +1,10 @@
-// src/app.js
-import cors from "cors";
 import express from "express";
 
+import connectDB from "./config/db.js";
 import corsMiddleware from "./config/cors.js";
+import logger from "./config/logger.js";
 import { uploadsDirectory } from "./config/storage.js";
+import { MESSAGES } from "./constants/messages.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import addressRoutes from "./modules/address/address.routes.js";
 import authRoutes from "./modules/auth/auth.routes.js";
@@ -33,6 +34,24 @@ app.use(corsMiddleware);
 app.use(express.json());
 app.use("/uploads", express.static(uploadsDirectory));
 
+app.use("/api", async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.use("/admin", async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.get("/", (req, res) => {
   res.status(200).json({ message: "API is running" });
 });
@@ -55,6 +74,8 @@ app.use("/api/v1/reports", reportRoutes);
 app.use("/admin/v1/categories", adminCategoryRoutes);
 app.use("/admin/v1/subcategories", adminSubcategoryRoutes);
 app.use("/admin/v1/products", adminProductRoutes);
+
+logger.info(MESSAGES.ROUTES_LOADED);
 
 app.use(errorMiddleware);
 

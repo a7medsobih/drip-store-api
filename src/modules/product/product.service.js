@@ -110,7 +110,7 @@ const getSortOption = (sort) => {
 };
 
 const getImagePath = (file) => {
-  if (!file) {
+  if (!file || !file.filename) {
     return null;
   }
 
